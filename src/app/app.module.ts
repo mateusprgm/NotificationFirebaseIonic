@@ -9,15 +9,31 @@ import { ListPage } from '../pages/list/list';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
+
+
+import { GoogleMaps } from '@ionic-native/google-maps';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+
+
+import { MapComponent } from '../components/map/map';
+import { Push } from '@ionic-native/push';
+
+
+
 @NgModule({
   declarations: [
     MyApp,
     HomePage,
-    ListPage
+    ListPage,
+    
+    
+    MapComponent
   ],
   imports: [
     BrowserModule,
     IonicModule.forRoot(MyApp),
+
+    
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -28,7 +44,10 @@ import { SplashScreen } from '@ionic-native/splash-screen';
   providers: [
     StatusBar,
     SplashScreen,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    Push,
+    {provide: ErrorHandler, useClass: IonicErrorHandler},
+    GoogleMaps,
+    Geolocation
   ]
 })
 export class AppModule {}
