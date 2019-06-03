@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild, OnInit, enableProdMode } from '@angular/core';
 import { PushObject, Push, PushOptions } from '@ionic-native/push';
 
-// import { MapComponent } from '../../components/map/map';
+import { MapComponent } from '../../components/map/map';
 
 
 
