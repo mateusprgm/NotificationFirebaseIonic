@@ -33,11 +33,7 @@ export class HomePage {
 
   pushsetup() {
     // to check if we have permission
-    this.push.hasPermission()
-    .then((res: any) => {
-
-      if (res.isEnabled) {
-        alert('We have permission to send push notifications');
+   
         const options: PushOptions = {
           android: {
             senderID: '341665036055'
@@ -74,15 +70,5 @@ export class HomePage {
         
         pushObject.on('error').subscribe(error => console.error('Error with Push plugin', error));
 
-      } else {
-        alert('We do not have permission to send push notifications');
-      }
-
-    });
-    
-   
-  
-
-   
   }
 }
