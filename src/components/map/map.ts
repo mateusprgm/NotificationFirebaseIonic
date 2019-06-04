@@ -43,7 +43,7 @@ export class MapComponent implements OnInit {
   async ngOnInit(){
     this.map = await this.getCurrentLocation().subscribe(location=>{
 
-      let lt = -15.8105;//quando diminui vai pro norte//aumenta vai pro sul-15.8105316
+      let lt = -15.810;//quando diminui vai pro norte//aumenta vai pro sul-15.8105316
       let lg = -48.1437;//quando diminui vai pro leste//aumenta vai pra oste-48.143755299999995
 
       
@@ -74,6 +74,7 @@ export class MapComponent implements OnInit {
       animation: google.maps.Animation.DROP,
       position: location,
       title: title,
+      rotation: 90,
     });
     // let lt = -15.8098315;
     // let lg = -48.143755299999995;
@@ -121,11 +122,11 @@ export class MapComponent implements OnInit {
 
   getCurrentLocation() {
     let locationObs: Observable<any>;
-    let options = {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
-        };
+    // let options = {
+    //       enableHighAccuracy: true,
+    //       timeout: 5000,
+    //       maximumAge: 0
+    //     };
 
     if (navigator.geolocation) {
 
@@ -141,7 +142,7 @@ export class MapComponent implements OnInit {
               obs.complete();
             }),function error(err) {
               console.warn('ERROR(' + err.code + '): ' + err.message);
-            },options;
+            },{maximumAge:10000, timeout:5000, enableHighAccuracy: true};
         }
       ) 
 
@@ -154,7 +155,7 @@ export class MapComponent implements OnInit {
     
     let mapOptions = {
       center: location,
-      zoom: 25,//21,
+      zoom: 18,//21,
       mapTypeId: google.maps.MapTypeId.NONE,
       heading: 90,
       tilt: 45,
@@ -178,7 +179,7 @@ export class MapComponent implements OnInit {
     };
 
     map.setOptions({styles: styles['hide']});
-       
+
 
 
     let trafficLayer = new google.maps.TrafficLayer();
@@ -249,34 +250,43 @@ export class MapComponent implements OnInit {
           
           this.getCurrentLocation().subscribe(location=>{
 
-            if (this.coords.lat().toString().substring([0],[8]) > location.lat().toString().substring([0],[8])){
-              this.spinMap(1);
-            }else if(this.coords.lat() < location.lat()){
-              this.spinMap(2);
-            }else{
-              // console.log("parado");
-              // this.spinMap(1);
-            }
-
-            if (this.coords.lng().toString().substring([0],[8]) > location.lng().toString().substring([0],[8])){
-              this.spinMap(3);
-            } else if(this.coords.lng() < location.lng()){
-              this.spinMap(4);
-            }else{
-              // console.log("parado");
-            }
 
             this.coords = location;
             
             marker.setPosition(location);
             marker.setMap(this.objMap());
             
-            
-            
-     
-          
 
             if(this.pauseDirections == false){
+              if (this.coords.lat().toString().substring([0],[7]) > location.lat().toString().substring([0],[7]) 
+               && this.coords.lng().toString().substring([0],[7]) > location.lng().toString().substring([0],[7])
+              ){
+                this.spinMap(5);//Nordeste
+              }else if (this.coords.lat().toString().substring([0],[7]) < location.lat().toString().substring([0],[7]) 
+                    && this.coords.lng().toString().substring([0],[7]) < location.lng().toString().substring([0],[7])
+              ){
+                this.spinMap(8);//Sudoeste
+              }else if (this.coords.lat().toString().substring([0],[7]) < location.lat().toString().substring([0],[7]) 
+                    && this.coords.lng().toString().substring([0],[7]) > location.lng().toString().substring([0],[7])
+              ){
+                this.spinMap(6);//Noroeste
+              }else if (this.coords.lat().toString().substring([0],[7]) > location.lat().toString().substring([0],[7]) 
+                    && this.coords.lng().toString().substring([0],[7]) < location.lng().toString().substring([0],[7])
+              ){
+                this.spinMap(7);//Sudeste
+              }else if (this.coords.lat().toString().substring([0],[7]) > location.lat().toString().substring([0],[7]) 
+              ){
+                this.spinMap(2);//Norte
+              }else if (this.coords.lat().toString().substring([0],[7]) < location.lat().toString().substring([0],[7]) 
+              ){
+                this.spinMap(1);//Sul
+              }else if (this.coords.lng().toString().substring([0],[7]) > location.lng().toString().substring([0],[7]) 
+              ){
+                this.spinMap(3);//Leste
+              }else if (this.coords.lng().toString().substring([0],[7]) < location.lng().toString().substring([0],[7]) 
+              ){
+                this.spinMap(4);//Oeste
+              }
               this.labelRoute = "Em navegação";
               this.objMap().setCenter(marker.position);
               this.routesDirections(this.objMap(), location, locationMarker);
@@ -315,6 +325,19 @@ export class MapComponent implements OnInit {
         break;
       case 4: //Oeste
         this.orientation = 180;
+        break;
+        ///
+      case 5: //Nordeste
+        this.orientation = 45;
+        break;
+      case 6: //Noroeste
+        this.orientation = 135;
+        break;
+      case 7: //Sudeste
+        this.orientation = 225;
+        break;
+      case 8: //Sudoeste
+        this.orientation = 315;
         break;
       default:
         this.orientation = 90;
