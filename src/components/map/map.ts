@@ -31,6 +31,9 @@ export class MapComponent implements OnInit {
   pauseDirections: Boolean = false;
   orientation = 90;
   labelRoute = 'Traçar rota';
+  texto: any;
+  texto1: any;
+
 
   
 
@@ -39,11 +42,11 @@ export class MapComponent implements OnInit {
   }
 
   
-
+///LEMBRETE USAR POSIÇÃO ANTERIOR PARA REDEFINIR OU NAO ROTA
   async ngOnInit(){
     this.map = await this.getCurrentLocation().subscribe(location=>{
 
-      let lt = -15.810;//quando diminui vai pro norte//aumenta vai pro sul-15.8105316
+      let lt = -15.8105;//quando diminui vai pro norte//aumenta vai pro sul-15.8105316
       let lg = -48.1437;//quando diminui vai pro leste//aumenta vai pra oste-48.143755299999995
 
       
@@ -156,7 +159,7 @@ export class MapComponent implements OnInit {
     let mapOptions = {
       center: location,
       zoom: 18,//21,
-      mapTypeId: google.maps.MapTypeId.NONE,
+      mapTypeId: 'satellite',//google.maps.MapTypeId.NONE,
       heading: 90,
       tilt: 45,
     }
@@ -240,8 +243,8 @@ export class MapComponent implements OnInit {
     let infoRoute;
     let locationMarker = new google.maps.LatLng(lat, lng);
     //
-    let marker = this.objMarker();;
-    
+    let marker = this.objMarker();
+    this.routesDirections(this.objMap(), this.objMarker().position, locationMarker);
     
       //Atualização de rota conforme posição de localização
       this.updMarker().subscribe(res=>{
@@ -249,47 +252,57 @@ export class MapComponent implements OnInit {
        
           
           this.getCurrentLocation().subscribe(location=>{
-
-
-            this.coords = location;
-            
+            let setRoute = false;
             marker.setPosition(location);
             marker.setMap(this.objMap());
-            
+            this.texto = ("coords"+this.coords.lat().toString(),this.coords.lng().toString());
+            this.texto1 = ("location"+location.lat().toString(), location.lng().toString());
 
             if(this.pauseDirections == false){
-              if (this.coords.lat().toString().substring([0],[7]) > location.lat().toString().substring([0],[7]) 
-               && this.coords.lng().toString().substring([0],[7]) > location.lng().toString().substring([0],[7])
+              if (this.coords.lat().toString().substring([0],[8]) > location.lat().toString().substring([0],[8]) 
+               && this.coords.lng().toString().substring([0],[8]) > location.lng().toString().substring([0],[8])
               ){
                 this.spinMap(5);//Nordeste
-              }else if (this.coords.lat().toString().substring([0],[7]) < location.lat().toString().substring([0],[7]) 
-                    && this.coords.lng().toString().substring([0],[7]) < location.lng().toString().substring([0],[7])
+                setRoute = true;
+              }else if (this.coords.lat().toString().substring([0],[8]) < location.lat().toString().substring([0],[8]) 
+                     && this.coords.lng().toString().substring([0],[8]) < location.lng().toString().substring([0],[8])
               ){
                 this.spinMap(8);//Sudoeste
-              }else if (this.coords.lat().toString().substring([0],[7]) < location.lat().toString().substring([0],[7]) 
-                    && this.coords.lng().toString().substring([0],[7]) > location.lng().toString().substring([0],[7])
+                setRoute = true;
+              }else if (this.coords.lat().toString().substring([0],[8]) < location.lat().toString().substring([0],[8]) 
+                     && this.coords.lng().toString().substring([0],[8]) > location.lng().toString().substring([0],[8])
               ){
                 this.spinMap(6);//Noroeste
-              }else if (this.coords.lat().toString().substring([0],[7]) > location.lat().toString().substring([0],[7]) 
-                    && this.coords.lng().toString().substring([0],[7]) < location.lng().toString().substring([0],[7])
+                setRoute = true;
+              }else if (this.coords.lat().toString().substring([0],[8]) > location.lat().toString().substring([0],[8]) 
+                    && this.coords.lng().toString().substring([0],[8]) < location.lng().toString().substring([0],[8])
               ){
                 this.spinMap(7);//Sudeste
-              }else if (this.coords.lat().toString().substring([0],[7]) > location.lat().toString().substring([0],[7]) 
+                setRoute = true;
+              }else if (this.coords.lat().toString().substring([0],[8]) > location.lat().toString().substring([0],[8]) 
               ){
                 this.spinMap(2);//Norte
-              }else if (this.coords.lat().toString().substring([0],[7]) < location.lat().toString().substring([0],[7]) 
+                setRoute = true;
+              }else if (this.coords.lat().toString().substring([0],[8]) < location.lat().toString().substring([0],[8]) 
               ){
                 this.spinMap(1);//Sul
-              }else if (this.coords.lng().toString().substring([0],[7]) > location.lng().toString().substring([0],[7]) 
+                setRoute = true;
+              }else if (this.coords.lng().toString().substring([0],[8]) > location.lng().toString().substring([0],[8]) 
               ){
                 this.spinMap(3);//Leste
-              }else if (this.coords.lng().toString().substring([0],[7]) < location.lng().toString().substring([0],[7]) 
+                setRoute = true;
+              }else if (this.coords.lng().toString().substring([0],[8]) < location.lng().toString().substring([0],[8]) 
               ){
                 this.spinMap(4);//Oeste
+                setRoute = true;
               }
+              this.coords = location;
               this.labelRoute = "Em navegação";
-              this.objMap().setCenter(marker.position);
-              this.routesDirections(this.objMap(), location, locationMarker);
+              if(setRoute == true){
+                this.objMap().setCenter(marker.position);
+                this.routesDirections(this.objMap(), location, locationMarker);
+              }
+              
               this.objMap().setZoom(this.objMap().getZoom());
             }
           })
@@ -316,31 +329,40 @@ export class MapComponent implements OnInit {
     switch(rose){
       case 1: //Sul
         this.orientation = -90;
+        this.texto = "Sul";
         break;
       case 2: //Norte
         this.orientation = 90;
+        this.texto = "Norte";
         break;
       case 3: //Leste
         this.orientation = 0;
+        this.texto = "Leste";
         break;
       case 4: //Oeste
         this.orientation = 180;
+        this.texto = "Oeste";
         break;
         ///
       case 5: //Nordeste
         this.orientation = 45;
+        this.texto = "Nordeste";
         break;
       case 6: //Noroeste
         this.orientation = 135;
+        this.texto = "Noroeste";
         break;
       case 7: //Sudeste
         this.orientation = 225;
+        this.texto = "Sudeste";
         break;
       case 8: //Sudoeste
         this.orientation = 315;
+        this.texto = "Sudoeste";
         break;
       default:
         this.orientation = 90;
+        this.texto = "Não ta funfando";
         break;
     }
     console.log(this.orientation);
