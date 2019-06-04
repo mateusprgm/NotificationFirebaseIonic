@@ -24,36 +24,48 @@ enableProdMode()
 export class MapComponent implements OnInit {
   map: any;
   directions: any;
+  coords: any;
   mapObj: any;
   markerObj: any;
   displayObject: any;
   pauseDirections: Boolean = false;
+  orientation = 90;
   labelRoute = 'Traçar rota';
 
   
 
   constructor(public nav: NavController) {
     
-    
-    
   }
+
   
 
   async ngOnInit(){
     this.map = await this.getCurrentLocation().subscribe(location=>{
 
+      let lt = -15.8105;//quando diminui vai pro norte//aumenta vai pro sul-15.8105316
+      let lg = -48.1437;//quando diminui vai pro leste//aumenta vai pra oste-48.143755299999995
+
+      
+      let locationMarker = new google.maps.LatLng(lt, lg);
+
+
       this.mapObj = this.createMap(location);
       this.markerObj = this.addMarker(this.objMap(), location, '');
+      this.coords = location;
+
+      
+      this.addMarker(this.objMap(), locationMarker, '');
 
     });
   }
 
-  texto ='';
-  texto1 ='';
+  
+
   async addMarker(map, location, title) {
 
-    let objMap = this.objMap();
-    let mapCenter = this.objMap().getCenter();
+    // let objMap = this.objMap();
+    // let mapCenter = this.objMap().getCenter();
     // let marker : Observable<any>;
     
     
@@ -63,11 +75,11 @@ export class MapComponent implements OnInit {
       position: location,
       title: title,
     });
-    let lt = -15.8098315;
-    let lg = -48.143755299999995;
+    // let lt = -15.8098315;
+    // let lg = -48.143755299999995;
 
       
-      // let locationMarker = new google.maps.LatLng(lt, lg);
+    // let locationMarker = new google.maps.LatLng(lt, lg);
 
      
       
@@ -142,17 +154,33 @@ export class MapComponent implements OnInit {
     
     let mapOptions = {
       center: location,
-      zoom: 21,
+      zoom: 25,//21,
       mapTypeId: google.maps.MapTypeId.NONE,
       heading: 90,
-      tilt: 45
-      
-
+      tilt: 45,
     }
 
     let mapEL = document.getElementById('map');
     let map = new google.maps.Map(mapEL, mapOptions);
-    
+    let styles = {
+      default: null,
+      hide: [
+        {
+          featureType: 'poi.business',
+          stylers: [{visibility: 'off'}]
+        },
+        {
+          featureType: 'transit',
+          elementType: 'labels.icon',
+          stylers: [{visibility: 'off'}]
+        }
+      ]
+    };
+
+    map.setOptions({styles: styles['hide']});
+       
+
+
     let trafficLayer = new google.maps.TrafficLayer();
     trafficLayer.setMap(map);
 
@@ -216,35 +244,87 @@ export class MapComponent implements OnInit {
     
       //Atualização de rota conforme posição de localização
       this.updMarker().subscribe(res=>{
-        if(this.pauseDirections == false){
-          this.labelRoute = "Em navegação";
+        
+       
+          
           this.getCurrentLocation().subscribe(location=>{
 
-            this.texto1 = location;
+            if (this.coords.lat().toString().substring([0],[8]) > location.lat().toString().substring([0],[8])){
+              this.spinMap(1);
+            }else if(this.coords.lat() < location.lat()){
+              this.spinMap(2);
+            }else{
+              // console.log("parado");
+              // this.spinMap(1);
+            }
+
+            if (this.coords.lng().toString().substring([0],[8]) > location.lng().toString().substring([0],[8])){
+              this.spinMap(3);
+            } else if(this.coords.lng() < location.lng()){
+              this.spinMap(4);
+            }else{
+              // console.log("parado");
+            }
+
+            this.coords = location;
+            
             marker.setPosition(location);
             marker.setMap(this.objMap());
             
-            this.objMap().setCenter(marker.position);
-            this.routesDirections(this.objMap(), location, locationMarker);
-            this.objMap().setZoom(20);
             
+            
+     
+          
+
+            if(this.pauseDirections == false){
+              this.labelRoute = "Em navegação";
+              this.objMap().setCenter(marker.position);
+              this.routesDirections(this.objMap(), location, locationMarker);
+              this.objMap().setZoom(this.objMap().getZoom());
+            }
           })
-        }
       });
   }
-
-  
-
   //Relógio
   updMarker(){
     return Observable.interval(2000);
   }
-  //
-
+  //Pausar criação de rota dinamica
   pauseDirection() {
     if(this.pauseDirections == true){
-      this.labelRoute = "Voltar para rota";
+      this.labelRoute = "Traçar Rota";
     }
     this.pauseDirections = true;
+
+    let mapHtml: HTMLElement = document.getElementById('map');
+    
+    mapHtml.style.transform = "rotate(90deg)";
+  }
+  //Girar o mapa
+  spinMap(rose) {
+    // this.orientation = 90;
+    switch(rose){
+      case 1: //Sul
+        this.orientation = -90;
+        break;
+      case 2: //Norte
+        this.orientation = 90;
+        break;
+      case 3: //Leste
+        this.orientation = 0;
+        break;
+      case 4: //Oeste
+        this.orientation = 180;
+        break;
+      default:
+        this.orientation = 90;
+        break;
+    }
+    console.log(this.orientation);
+
+    let mapHtml: HTMLElement = document.getElementById('map');
+    mapHtml.style.overflow = "inherit";
+    mapHtml.style.transform = "rotate("+this.orientation+"deg)"; /* Standard syntax */
+    
   }
 }

@@ -1,12 +1,37 @@
 map {
     .wrapper {
-        position: relative;
+        // position: relative;
         width: 100%;
         height: 100%;
+        
+		border-radius:50%;  
+        z-index:5;
+
+        transform: rotate(-90deg); /* Standard syntax */
+        transition: transform 3s;
     }
     #map {
         height: 100%;
         width: 100%;
+        // overflow: "visible";
+        transform: rotate(90deg); /* Standard syntax */
+        transition: transform 3s;
+   
+    }
+    .scroll-content{
+        background-color: #000!important;
+    }
+    .flutuante {
+        position: fixed;
+        top: 90%;
+        padding: 10px;
+        z-index: 10000000;
+    }
+    .priButton {
+        left: 1%;
+    }
+    .secButton {
+        left: 35%;
     }
     
 }
