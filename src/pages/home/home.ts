@@ -53,13 +53,13 @@ export class HomePage {
    
    
         pushObject.on('notification').subscribe((notification: any) => {
-          alert(notification.message);
+          // alert(notification.message);
         });
         
         
         pushObject.on('registration').subscribe((registration: any) => {
           this.texto = registration.registrationId;
-          alert(registration.registrationId);
+          // alert(registration.registrationId);
           this.push.createChannel({
             id: registration.registrationId,
             description: registration.registrationId,
