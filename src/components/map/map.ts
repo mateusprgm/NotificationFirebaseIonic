@@ -263,7 +263,7 @@ export class MapComponent implements OnInit {
             marker 
         });
       });
-      
+      map.setZoom(17);
       for (var i = 0; i < myRoute.steps.length; i++) {
           
           var markerInstruct = new google.maps.Marker({
@@ -280,7 +280,7 @@ export class MapComponent implements OnInit {
           console.log(listMarkers[0].marker.start_location.lat().toString().substring([4],[5]));
           console.log(marker.position.lat().toString().substring([4],[5]));
           updMarker.subscribe(res=>{
-            let n = 24;
+            let n = 28;
             let coordOrientation: String = "";
             if(marker.position.lng() >= listMarkers[n].marker.start_location.lng()){
               console.log("to pro norte");
@@ -347,6 +347,8 @@ export class MapComponent implements OnInit {
 
                 map.setCenter(listMarkers[n-1].marker.start_location);
 
+            
+            map.setZoom(map.getZoom());
 
 
           });
