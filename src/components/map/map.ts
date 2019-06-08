@@ -2,7 +2,7 @@ import { Component, OnInit, enableProdMode } from '@angular/core';
 // import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { Observable } from 'rxjs/Observable';
 import { NavController } from 'ionic-angular';
-import { DeviceOrientation, DeviceOrientationCompassHeading } from '@ionic-native/device-orientation';
+import { DeviceOrientation, DeviceOrientationCompassHeading, DeviceOrientationCompassOptions } from '@ionic-native/device-orientation';
 
 
 
@@ -55,7 +55,7 @@ export class MapComponent implements OnInit {
 
 
       this.mapObj = this.createMap(location);
-      this.markerObj = this.addMarker(this.objMap(), location, '');
+      this.markerObj = this.addMarker(this.objMap(), location, 'marker');
       this.coords = location;
 
       
@@ -66,30 +66,38 @@ export class MapComponent implements OnInit {
 
   
 
-  async addMarker(map, location, title) {
+  async addMarker(map, location, iconimg) {
 
     // let objMap = this.objMap();
     // let mapCenter = this.objMap().getCenter();
     // let marker : Observable<any>;
+  
+    let icon = {
+      path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+      scale: 8,
+      rotation:270
+    };
     
-    
+    if(iconimg != 'marker'){
+      icon = {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        rotation:0,
+      };
+    }
+  
     let marker = new google.maps.Marker({
       map: map,
       animation: google.maps.Animation.DROP,
       position: location,
-      title: title,
-      rotation: 90,
+      optimized: false,
+      icon: icon
     });
-    // let lt = -15.8098315;
-    // let lg = -48.143755299999995;
-
-      
-    // let locationMarker = new google.maps.LatLng(lt, lg);
-
-     
-      
-      
-
+   
+    
+    
+    
+    // markerHtml.style.transform = "rotate("+9+"deg)"; 
     
 
     // let contentString = '<div id="content">'+
@@ -180,8 +188,6 @@ export class MapComponent implements OnInit {
     };
 
     map.setOptions({styles: styles['hide']});
-  
-    
 
     let trafficLayer = new google.maps.TrafficLayer();
     trafficLayer.setMap(map);
@@ -313,14 +319,29 @@ export class MapComponent implements OnInit {
   }
   //Girar o mapa
   spinMap() {    
+    
+
     // Watch the device compass heading change
     let mapHtml: HTMLElement = document.getElementById('map');
     mapHtml.style.overflow = "inherit";
-    var subscription = this.deviceOrientation.watchHeading().subscribe(
+    let options : DeviceOrientationCompassOptions = {
+      frequency: 4000
+    }
+    var subscription = this.deviceOrientation.watchHeading(options).subscribe(
       (data: DeviceOrientationCompassHeading) => {
-        mapHtml.style.transform = "rotate("+data.magneticHeading+"deg)"; 
+        
+        
+          mapHtml.style.transform = "rotate("+(360-data.magneticHeading)+"deg)"; 
+          let icon = {
+            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+            scale: 8,
+            rotation: data.magneticHeading
+          };
+          
+          this.objMarker().setIcon(icon);
       },
       (error: any) => console.log(error)
     );
+    
   }  
 }

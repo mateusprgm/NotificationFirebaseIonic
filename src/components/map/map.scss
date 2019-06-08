@@ -7,17 +7,18 @@ map {
 		border-radius:50%;  
         z-index:5;
 
-        transform: rotate(-90deg); /* Standard syntax */
-        transition: transform 3s;
+        // transform: rotate(0deg); /* Standard syntax */
+        overflow: "inherit"!important;
     }
     #map {
         height: 100%;
         width: 100%;
-        overflow: "inherit";
-        transform: rotate(90deg); /* Standard syntax */
-        transition: transform 3s;
+        overflow: "inherit"!important;
+        transform: rotate(0deg); /* Standard syntax */
+        transition: transform 5s;
    
     }
+   
     .scroll-content{
         background-color: #000!important;
     }
