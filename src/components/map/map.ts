@@ -3,7 +3,8 @@ import { Component, OnInit, enableProdMode } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { NavController } from 'ionic-angular';
 import { DeviceOrientation, DeviceOrientationCompassHeading, DeviceOrientationCompassOptions } from '@ionic-native/device-orientation';
-
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
+import { Platform } from 'ionic-angular';
 
 
 
@@ -24,38 +25,53 @@ enableProdMode()
 
 export class MapComponent implements OnInit {
   map: any;
-  directions: any;
   coords: any;
   mapObj: any;
   markerObj: any;
   displayObject: any;
-  pauseDirections: Boolean = false;
-  orientation = 90;
+
   labelRoute = 'Traçar rota';
-  texto: any;
-  texto1: any;
-  HeadingDevice: any;
+
 
 
   
 
-  constructor(public nav: NavController, public deviceOrientation: DeviceOrientation) {}
+  constructor(
+    public nav: NavController, 
+    public deviceOrientation: DeviceOrientation, 
+    private androidPermissions: AndroidPermissions, 
+    public plt: Platform
+  ) 
+  {
+    // this.permi();
+  }
 
   
+  permi(){
+    if(this.plt.is('android')){
+      this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION).then(
+        result => console.log('Has permission?',result.hasPermission),
+        err => this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION)
+      );
+      
+      this.androidPermissions.requestPermissions([this.androidPermissions.PERMISSION.ACCESS_FINE_LOCATION, this.androidPermissions.PERMISSION.GET_ACCOUNTS])
+    }else{
+      console.log('Plataforma não suportada!');
+      console.log(this.plt);
+    }
+    
+  }
 ///LEMBRETE USAR POSIÇÃO ANTERIOR PARA REDEFINIR OU NAO ROTA
   async ngOnInit(){
     this.map = await this.getCurrentLocation().subscribe(location=>{
 
-      let lt = -15.8105;//quando diminui vai pro norte//aumenta vai pro sul-15.8105316
-      let lg = -48.1437;//quando diminui vai pro leste//aumenta vai pra oste-48.143755299999995
-
-      
-      
-      let locationMarker = new google.maps.LatLng(lt, lg);
+      let lat = -15.8098315;
+      let lng = -48.143755299999995;
+      let locationMarker = new google.maps.LatLng(lat, lng);
 
 
       this.mapObj = this.createMap(location);
-      this.markerObj = this.addMarker(this.objMap(), location, 'marker');
+      this.markerObj = this.addMarker(this.objMap(), location, 'principal');
       this.coords = location;
 
       
@@ -66,24 +82,12 @@ export class MapComponent implements OnInit {
 
   
 
-  async addMarker(map, location, iconimg) {
+  async addMarker(map, location, classe) {
 
-    // let objMap = this.objMap();
-    // let mapCenter = this.objMap().getCenter();
-    // let marker : Observable<any>;
-  
-    let icon = {
-      path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-      scale: 8,
-      rotation:270
-    };
     
-    if(iconimg != 'marker'){
-      icon = {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 8,
-        rotation:0,
-      };
+    let icon = null;
+    if(classe == 'principal'){
+      icon = '../../assets/imgs/hole.png';
     }
   
     let marker = new google.maps.Marker({
@@ -212,11 +216,7 @@ export class MapComponent implements OnInit {
     let directionsService = new google.maps.DirectionsService;
     let directionsDisplay = new google.maps.DirectionsRenderer({ preserveViewport: true,  suppressMarkers: true });
     
-   
-    let marker = this.objMarker();
-    let updMarker = this.updMarker();
-    let spinMap = this.spinMap;
-    let getCurrentPosition = this.getCurrentLocation();
+
  
     //Destruir obj anterior, para a não sobreposição de rotas
     if(this.displayObject){
@@ -225,8 +225,7 @@ export class MapComponent implements OnInit {
     
     this.displayObject = directionsDisplay;
     this.displayObject.setMap(map);
-    //
-    // let warnings = document.getElementById("texto");
+   
     
     directionsService.route({
       origin: origin,
@@ -236,66 +235,27 @@ export class MapComponent implements OnInit {
     }, function(response, status) {
       if (status === 'OK') {
         directionsDisplay.setDirections(response);
-        makeSteps(response);
+        
       } else {
         window.alert('Directions request failed due to ' + status);
       }
     });
 
-    function makeSteps(directionResult) {
-
-      let resultRoute = directionResult.routes[0].legs[0];
-      let listMarkers = [];
-      resultRoute.steps.forEach(marker => {
-        listMarkers.push({
-            marker 
-        });
-      });
-      
-      listMarkers.forEach(markers=>{
-        // var markerInstruct = new google.maps.Marker({
-        //   position: markers.marker.start_point,
-        //   map: map
-        // });
-        // var markerInstruct = new google.maps.Marker({
-        //   position: markers.marker.start_location,
-        //   map: map
-        // });
-        // let chaveDirection = markers.marker.maneuver.split("-");
-        // let graus = 90;
-        // console.log(chaveDirection[1]);
-        
-    
-          
-          updMarker.subscribe(res=>{
-            // let markerbefore = new google.maps.LatLng(marker.position.lat(), marker.position.lng());
-
-            
-            getCurrentPosition.subscribe(realPosition=>{
-              map.setCenter(realPosition);
-
-            })
-            
-          });
-      })
-    }
+   
     return directionsDisplay;
   }
 
   
   route() {
     this.spinMap();
-    //Definição para false para voltar traçar rotas
-    this.pauseDirections = false;
     //Destino Estático para teste.
     let lat = -15.8098315;
     let lng = -48.143755299999995;
     let locationMarker = new google.maps.LatLng(lat, lng);
 
-    this.routesDirections(this.objMap(), locationMarker, this.objMarker().position);
+    this.routesDirections(this.objMap(), this.objMarker().position, locationMarker);
        
-    // this.objMap().setZoom(this.objMap().getZoom());
-    // this.objMap().setZoom(17);
+
     let timer = setInterval(() => { 
       this.objMap().setZoom(17);  
       clearInterval(timer);
@@ -308,14 +268,7 @@ export class MapComponent implements OnInit {
   }
   //Pausar criação de rota dinamica
   pauseDirection() {
-    // if(this.pauseDirections == true){
-    //   this.labelRoute = "Traçar Rota";
-    // }
-    // this.pauseDirections = true;
-
-    // let mapHtml: HTMLElement = document.getElementById('map');
-    
-    // mapHtml.style.transform = "rotate(90deg)";
+  
   }
   //Girar o mapa
   spinMap() {    
@@ -330,15 +283,19 @@ export class MapComponent implements OnInit {
     var subscription = this.deviceOrientation.watchHeading(options).subscribe(
       (data: DeviceOrientationCompassHeading) => {
         
-        
+          
           mapHtml.style.transform = "rotate("+(360-data.magneticHeading)+"deg)"; 
           let icon = {
             path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
             scale: 8,
-            rotation: data.magneticHeading
+            rotation: data.magneticHeading,
           };
-          
           this.objMarker().setIcon(icon);
+          this.getCurrentLocation().subscribe(location=>{
+            this.objMarker().position = location;
+            this.objMap().setCenter(this.objMarker().position);
+          });
+          
       },
       (error: any) => console.log(error)
     );

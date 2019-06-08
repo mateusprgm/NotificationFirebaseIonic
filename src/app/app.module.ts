@@ -18,6 +18,7 @@ import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { MapComponent } from '../components/map/map';
 import { Push } from '@ionic-native/push';
 import { DeviceOrientation } from '@ionic-native/device-orientation';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 
 
 
@@ -45,8 +46,11 @@ import { DeviceOrientation } from '@ionic-native/device-orientation';
   providers: [
     StatusBar,
     SplashScreen,
+
     Push,
     DeviceOrientation,
+    AndroidPermissions,
+
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     GoogleMaps,
     Geolocation
