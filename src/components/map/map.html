@@ -1,5 +1,5 @@
 <div class="class">
-    <button class="flutuante priButton" ion-button (click)="route();">{{labelRoute}}</button>
+    <button class="flutuante priButton" (click)="route();" ion-button >{{labelRoute}}</button>
 </div>
 <!-- <div class="class">
     <button class="flutuante secButton" ion-button (click)="spinMap();">rodar</button>
@@ -34,6 +34,6 @@
 <!-- <input type="text" id="texto" class="flutuante" style=" top:70%!important;width: 100%;" value="{{texto1}}"> -->
 <div id="warnings_panel"></div>
 <div class="wrapper">
-  <div id="map"></div><!--(touchstart)="pauseDirection();"-->
+  <div id="map" (touchstart)="pauseDirection();"></div>
 </div>
 
