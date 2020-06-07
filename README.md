@@ -1,1 +1,1 @@
-# NotificationFirebaseIonic
+# Aplicação exemplo notificação via firebase.
