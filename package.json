@@ -30,7 +30,7 @@
     "@ionic-native/status-bar": "~4.20.0",
     "@ionic/storage": "2.2.0",
     "cordova-android": "7.1.4",
-    "cordova-browser": "5.0.4",
+    "cordova-browser": "6.0.0",
     "cordova-plugin-android-permissions": "1.0.0",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-device-orientation": "2.0.1",
